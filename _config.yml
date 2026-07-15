@@ -1,12 +1,11 @@
 theme: jekyll-theme-cayman
-title: 金览 JinLan
-description: AI 驱动的财经信息聚合系统 - 每日早8晚8更新
-baseurl: "/Horizon" # the subpath of your site, e.g. /blog
-url: "https://lgjjennie-ship-it.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+title: AI掘金
+description: AI 驱动的热门项目挖掘系统 - 每日午间更新
+baseurl: "/ai-gold"
+url: "https://lgjjennie-ship-it.github.io"
 
-# Build settings
 markdown: kramdown
-future: true # Allow future posts to be published
+future: true
 plugins:
   - jekyll-feed
 feed:
@@ -15,9 +14,19 @@ exclude:
   - ".github"
   - "node_modules"
 
+collections:
+  projects:
+    output: true
+    permalink: /projects/:name/
+
 defaults:
   - scope:
       path: ""
       type: "posts"
+    values:
+      layout: "default"
+  - scope:
+      path: ""
+      type: "projects"
     values:
       layout: "default"
