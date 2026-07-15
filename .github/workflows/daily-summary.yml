@@ -1,0 +1,75 @@
+name: Daily JinLan Summary
+
+on:
+  schedule:
+    # 0:00 UTC = 8:00 Beijing (早报); 12:00 UTC = 20:00 Beijing (晚报)
+    - cron: '0 0,12 * * *'
+  workflow_dispatch:
+    inputs:
+      edition:
+        description: '日报刊次: morning=早报, evening=晚报'
+        required: false
+        type: choice
+        default: morning
+        options:
+          - morning
+          - evening
+
+jobs:
+  daily-summary:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Prepare GitHub Actions config
+        run: cp data/config.github.json data/config.json
+
+      - name: Determine edition
+        id: edition
+        run: |
+          if [ -n "${{ github.event.inputs.edition }}" ]; then
+            EDITION="${{ github.event.inputs.edition }}"
+          else
+            HOUR_UTC=$(date -u +'%H')
+            if [ "$HOUR_UTC" -lt 12 ]; then
+              EDITION="morning"
+            else
+              EDITION="evening"
+            fi
+          fi
+          echo "EDITION=$EDITION" >> $GITHUB_ENV
+          echo "edition=$EDITION" >> $GITHUB_OUTPUT
+
+      - name: Run JinLan
+        env:
+          ZHIPU_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
+          HORIZON_WEBHOOK_URL: ${{ secrets.HORIZON_WEBHOOK_URL }}
+        run: uv run horizon --hours 12 --edition "$EDITION"
+
+      - name: Set current date as environment variable
+        run: echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          keep_files: true
+          commit_message: "📝 JinLan ${{ env.EDITION }} Summary: ${{ env.DATE }}"
+          publish_branch: gh-pages
+          enable_jekyll: true

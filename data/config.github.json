@@ -1,0 +1,172 @@
+{
+  "version": "1.0",
+  "ai": {
+    "provider": "openai",
+    "model": "glm-4-flash-250414",
+    "base_url": "https://open.bigmodel.cn/api/paas/v4/",
+    "api_key_env": "ZHIPU_API_KEY",
+    "temperature": 0.3,
+    "max_tokens": 4096,
+    "throttle_sec": 1,
+    "languages": [
+      "zh",
+      "en"
+    ],
+    "analysis_concurrency": 1,
+    "enrichment_concurrency": 1
+  },
+  "sources": {
+    "github": [],
+    "hackernews": {
+      "enabled": false
+    },
+    "reddit": {
+      "enabled": false
+    },
+    "telegram": {
+      "enabled": false
+    },
+    "twitter": {
+      "enabled": false
+    },
+    "rss": [
+      {
+        "name": "36氪",
+        "url": "https://36kr.com/feed",
+        "enabled": true,
+        "category": "finance-general"
+      },
+      {
+        "name": "钛媒体",
+        "url": "https://www.tmtpost.com/feed",
+        "enabled": true,
+        "category": "finance-general"
+      },
+      {
+        "name": "36氪快讯",
+        "url": "https://rsshub.rssforever.com/36kr/newsflashes",
+        "enabled": true,
+        "category": "finance-flash"
+      },
+      {
+        "name": "财新网",
+        "url": "https://rsshub.rssforever.com/caixin/latest",
+        "enabled": true,
+        "category": "finance-deep"
+      },
+      {
+        "name": "第一财经",
+        "url": "https://rsshub.rssforever.com/yicai/news",
+        "enabled": true,
+        "category": "finance-general"
+      },
+      {
+        "name": "华尔街见闻",
+        "url": "https://rsshub.rssforever.com/wallstreetcn/news/latest",
+        "enabled": true,
+        "category": "finance-global"
+      },
+      {
+        "name": "虎嗅",
+        "url": "https://rsshub.rssforever.com/huxiu/article",
+        "enabled": true,
+        "category": "finance-general"
+      },
+      {
+        "name": "V2EX热门",
+        "url": "https://rsshub.rssforever.com/v2ex/topics/hot",
+        "enabled": true,
+        "category": "community"
+      }
+    ],
+    "openbb": {
+      "enabled": true,
+      "fetch_filings": false,
+      "filings_provider": "sec",
+      "watchlists": [
+        {
+          "name": "中概股",
+          "enabled": true,
+          "provider": "yfinance",
+          "fetch_limit": 15,
+          "category": "equities-cn",
+          "symbols": ["BABA", "JD", "PDD", "BIDU", "TME", "NIO", "LI", "BILI"]
+        },
+        {
+          "name": "美股大盘",
+          "enabled": true,
+          "provider": "yfinance",
+          "fetch_limit": 15,
+          "category": "equities-us",
+          "symbols": ["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "TSLA"]
+        }
+      ]
+    },
+    "google_news": {
+      "enabled": true,
+      "query": "财经 OR 股市 OR A股 OR 美股 OR 港股 OR 宏观经济 OR 利率 OR 央行",
+      "language": "zh",
+      "country": "CN",
+      "ceid": null,
+      "max_results": 80,
+      "category": "finance-search"
+    },
+    "ossinsight": {
+      "enabled": false
+    },
+    "gdelt": {
+      "enabled": false
+    }
+  },
+  "filtering": {
+    "ai_score_threshold": 6.0,
+    "time_window_hours": 12,
+    "max_items": 20,
+    "category_groups": {
+      "equities": {
+        "name": "股市行情",
+        "limit": 5,
+        "categories": ["equities-cn", "equities-us", "finance-equities"]
+      },
+      "macro": {
+        "name": "宏观与全球",
+        "limit": 4,
+        "categories": ["finance-global", "finance-macro"]
+      },
+      "deep": {
+        "name": "深度分析",
+        "limit": 5,
+        "categories": ["finance-deep", "finance-general"]
+      },
+      "flash": {
+        "name": "实时快讯",
+        "limit": 3,
+        "categories": ["finance-flash"]
+      },
+      "search": {
+        "name": "财经搜索",
+        "limit": 3,
+        "categories": ["finance-search"]
+      },
+      "community": {
+        "name": "社区热点",
+        "limit": 2,
+        "categories": ["community"]
+      }
+    },
+    "default_group": "other",
+    "default_group_limit": 2
+  },
+  "webhook": {
+    "enabled": false,
+    "url_env": "HORIZON_WEBHOOK_URL",
+    "delivery": "summary",
+    "overview_position": "first",
+    "platform": "generic",
+    "layout": "markdown",
+    "fallback_layout": "markdown",
+    "languages": null,
+    "request_body": {},
+    "headers": ""
+  }
+}
