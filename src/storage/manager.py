@@ -127,12 +127,109 @@ class StorageManager:
         edition: Optional[str] = None,
     ) -> Path:
         edition_part = f"-{edition}" if edition else ""
-        filename = f"jinlan-{date}{edition_part}-{language}.md"
+        filename = f"ai-gold-{date}{edition_part}-{language}.md"
         filepath = safe_output_path(self.summaries_dir, filename)
 
         _atomic_write_text(filepath, markdown)
 
         return filepath
+
+    def save_project_archive(self, items: list, date: str) -> int:
+        """Write one markdown archive page per item to docs/_projects/.
+
+        Returns the number of pages written. Each page carries front matter
+        for Jekyll so it renders on GitHub Pages. The slug combines a short
+        date stamp with a sanitized title so same-named projects on
+        different days do not collide.
+        """
+        from datetime import datetime, timezone
+
+        projects_dir = Path("docs/_projects")
+        projects_dir.mkdir(parents=True, exist_ok=True)
+
+        written = 0
+        seen_slugs: set[str] = set()
+
+        for item in items:
+            title = (item.title or "untitled").strip()
+            base_slug = re.sub(r"[^a-zA-Z0-9\u4e00-\u9fff]+", "-", title).strip("-").lower()
+            if not base_slug:
+                base_slug = "project"
+            slug = f"{date}-{base_slug}"
+            if slug in seen_slugs:
+                slug = f"{slug}-{written + 1}"
+            seen_slugs.add(slug)
+
+            published = getattr(item, "published_at", None)
+            published_str = (
+                published.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+                if published
+                else date
+            )
+
+            tags = ", ".join(getattr(item, "ai_tags", []) or [])
+            score = getattr(item, "ai_score", None)
+            score_str = f"{score:.1f}" if isinstance(score, (int, float)) else ""
+
+            source_type = getattr(item, "source_type", None)
+            source_name = getattr(source_type, "value", str(source_type)) if source_type else ""
+            category = (item.metadata or {}).get("category", "") or ""
+
+            meta_lines = []
+            if source_name:
+                meta_lines.append(f"source: {source_name}")
+            if category:
+                meta_lines.append(f"category: {category}")
+            if score_str:
+                meta_lines.append(f"ai_score: {score_str}")
+            if tags:
+                meta_lines.append(f"tags: \"{tags}\"")
+            meta_block = "\n".join(meta_lines)
+            meta_section = meta_block + "\n" if meta_block else ""
+
+            url = getattr(item, "url", "")
+            url_str = str(url) if url else ""
+
+            author = getattr(item, "author", "") or ""
+            author_line = f"**作者**: {author}\n" if author else ""
+
+            ai_summary = getattr(item, "ai_summary", "") or ""
+            ai_reason = getattr(item, "ai_reason", "") or ""
+            ai_section = ""
+            if ai_summary:
+                ai_section += f"\n## AI 摘要\n\n{ai_summary}\n"
+            if ai_reason:
+                ai_section += f"\n## AI 评价\n\n{ai_reason}\n"
+
+            content = getattr(item, "content", "") or ""
+
+            body_parts = [
+                f"# {title}\n",
+                f"**链接**: {url_str}\n" if url_str else "",
+                author_line,
+                f"**发布时间**: {published_str}\n" if published else "",
+                f"**采集日期**: {date}\n",
+                ai_section,
+                "\n## 原文内容\n\n" + content if content else "",
+            ]
+            body = "\n".join(part for part in body_parts if part)
+
+            escaped_title = title.replace('"', '\\"')
+            front_matter = (
+                "---\n"
+                "layout: default\n"
+                f"title: \"{escaped_title}\"\n"
+                f"date: {published_str}\n"
+                f"slug: {slug}\n"
+                + meta_section
+                + "---\n\n"
+            )
+
+            filepath = projects_dir / f"{slug}.md"
+            _atomic_write_text(filepath, front_matter + body)
+            written += 1
+
+        return written
 
     def load_subscribers(self) -> list:
         """Loads the list of email subscribers."""

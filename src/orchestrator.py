@@ -187,18 +187,9 @@ class HorizonOrchestrator:
 
         Args:
             force_hours: Optional override for time window in hours
-            edition: Optional edition label ("morning" or "evening").
-                When set, summary filenames and titles are tagged accordingly
-                so the early/evening digests do not overwrite each other.
+            edition: Unused, kept for CLI compatibility.
         """
-        edition_label_zh = {"morning": "早报", "evening": "晚报"}.get(edition, "")
-        edition_suffix = f"-{edition}" if edition else ""
-        title_edition = f" {edition_label_zh}" if edition_label_zh else ""
-        title_brand = f"金览 JinLan{title_edition}"
-        self.console.print(
-            f"[bold cyan]🌅 金览 JinLan - 启动信息聚合..."
-            f"{'(' + edition_label_zh + ')' if edition_label_zh else ''}[/bold cyan]\n"
-        )
+        self.console.print("[bold cyan]⛏️ AI掘金 - 启动热门项目挖掘...[/bold cyan]\n")
 
         # Check email subscriptions if configured
         if (
@@ -271,7 +262,7 @@ class HorizonOrchestrator:
 
                 # Save to data/summaries/
                 summary_path = self.storage.save_daily_summary(
-                    today, summary, language=lang, edition=edition
+                    today, summary, language=lang, edition=None
                 )
                 self.console.print(f"💾 Saved {lang.upper()} summary to: {summary_path}\n")
 
@@ -279,7 +270,7 @@ class HorizonOrchestrator:
                 try:
                     from pathlib import Path
 
-                    post_filename = f"{today}{edition_suffix}-summary-{lang}.md"
+                    post_filename = f"{today}-summary-{lang}.md"
                     posts_dir = Path("docs/_posts")
                     posts_dir.mkdir(parents=True, exist_ok=True)
 
@@ -288,11 +279,10 @@ class HorizonOrchestrator:
                     front_matter = (
                         "---\n"
                         "layout: default\n"
-                        f"title: \"{title_brand}: {today} ({lang.upper()})\"\n"
+                        f"title: \"AI掘金: {today} ({lang.upper()})\"\n"
                         f"date: {today}\n"
                         f"lang: {lang}\n"
-                        + (f"edition: {edition}\n" if edition else "")
-                        + "---\n\n"
+                        "---\n\n"
                     )
 
                     # Strip leading H1 header to avoid duplication with Jekyll title
@@ -314,7 +304,7 @@ class HorizonOrchestrator:
                 if self.email_manager and self.config.email and self.config.email.enabled:
                     self.console.print(f"📧 Sending {lang.upper()} email summary...")
                     subscribers = self.storage.load_subscribers()
-                    subject = f"金览 JinLan{title_edition} ({lang.upper()}) - {today}"
+                    subject = f"AI掘金 ({lang.upper()}) - {today}"
                     self.email_manager.send_daily_summary(summary, subject, subscribers)
 
                 # Send webhook notification if configured
@@ -328,7 +318,14 @@ class HorizonOrchestrator:
                         summarizer=summarizer,
                     )
 
-            self.console.print("[bold green]✅ 金览 JinLan completed successfully![/bold green]")
+            # 8. Save individual project archive pages for each important item
+            try:
+                saved_projects = self.storage.save_project_archive(important_items, today)
+                self.console.print(f"🗂️  Saved {saved_projects} project archive pages to docs/_projects/\n")
+            except Exception as e:
+                self.console.print(f"[yellow]⚠️  Failed to save project archives: {e}[/yellow]\n")
+
+            self.console.print("[bold green]✅ AI掘金 completed successfully![/bold green]")
             usage = get_usage_snapshot()
             if usage.total_tokens > 0:
                 self.console.print(
