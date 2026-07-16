@@ -189,7 +189,7 @@ class HorizonOrchestrator:
             force_hours: Optional override for time window in hours
             edition: Unused, kept for CLI compatibility.
         """
-        self.console.print("[bold cyan]⛏️ AI掘金 - 启动热门项目挖掘...[/bold cyan]\n")
+        self.console.print("[bold cyan]🌬️ AI 风向 - 启动 AI 资讯聚合...[/bold cyan]\n")
 
         # Check email subscriptions if configured
         if (
@@ -279,7 +279,7 @@ class HorizonOrchestrator:
                     front_matter = (
                         "---\n"
                         "layout: default\n"
-                        f"title: \"AI掘金: {today} ({lang.upper()})\"\n"
+                        f"title: \"AI 风向: {today} ({lang.upper()})\"\n"
                         f"date: {today}\n"
                         f"lang: {lang}\n"
                         "---\n\n"
@@ -304,7 +304,7 @@ class HorizonOrchestrator:
                 if self.email_manager and self.config.email and self.config.email.enabled:
                     self.console.print(f"📧 Sending {lang.upper()} email summary...")
                     subscribers = self.storage.load_subscribers()
-                    subject = f"AI掘金 ({lang.upper()}) - {today}"
+                    subject = f"AI 风向 ({lang.upper()}) - {today}"
                     self.email_manager.send_daily_summary(summary, subject, subscribers)
 
                 # Send webhook notification if configured
@@ -325,7 +325,7 @@ class HorizonOrchestrator:
             except Exception as e:
                 self.console.print(f"[yellow]⚠️  Failed to save project archives: {e}[/yellow]\n")
 
-            self.console.print("[bold green]✅ AI掘金 completed successfully![/bold green]")
+            self.console.print("[bold green]✅ AI 风向 completed successfully![/bold green]")
             usage = get_usage_snapshot()
             if usage.total_tokens > 0:
                 self.console.print(

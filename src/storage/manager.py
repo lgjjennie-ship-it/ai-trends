@@ -127,7 +127,7 @@ class StorageManager:
         edition: Optional[str] = None,
     ) -> Path:
         edition_part = f"-{edition}" if edition else ""
-        filename = f"ai-gold-{date}{edition_part}-{language}.md"
+        filename = f"ai-trends-{date}{edition_part}-{language}.md"
         filepath = safe_output_path(self.summaries_dir, filename)
 
         _atomic_write_text(filepath, markdown)

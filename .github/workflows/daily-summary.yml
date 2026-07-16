@@ -1,4 +1,4 @@
-name: Daily AI Gold
+name: Daily AI Trends
 
 on:
   schedule:
@@ -30,7 +30,7 @@ jobs:
       - name: Prepare GitHub Actions config
         run: cp data/config.github.json data/config.json
 
-      - name: Run AI Gold
+      - name: Run AI Trends
         env:
           ZHIPU_API_KEY: ${{ secrets.ZHIPU_API_KEY }}
           HORIZON_WEBHOOK_URL: ${{ secrets.HORIZON_WEBHOOK_URL }}
@@ -45,6 +45,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
           keep_files: true
-          commit_message: "⛏️ AI掘金 Summary: ${{ env.DATE }}"
+          commit_message: "🌬️ AI 风向 Summary: ${{ env.DATE }}"
           publish_branch: gh-pages
           enable_jekyll: true

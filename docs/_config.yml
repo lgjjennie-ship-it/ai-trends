@@ -1,7 +1,7 @@
 theme: jekyll-theme-cayman
-title: AI掘金
+title: AI 风向
 description: AI 驱动的热门项目挖掘系统 - 每日午间更新
-baseurl: "/ai-gold"
+baseurl: "/ai-trends"
 url: "https://lgjjennie-ship-it.github.io"
 
 markdown: kramdown
