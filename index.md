@@ -3,7 +3,7 @@ layout: default
 title: Home
 ---
 
-# AI掘金
+# AI 风向
 
 <div id="lang-zh" class="lang-section" markdown="1">
 
